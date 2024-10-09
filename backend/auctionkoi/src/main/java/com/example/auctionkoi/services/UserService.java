@@ -3,6 +3,7 @@ package com.example.auctionkoi.services;
 import com.example.auctionkoi.dto.request.UserCreationRequest;
 import com.example.auctionkoi.dto.request.UserLoginRequest;
 import com.example.auctionkoi.dto.request.UserUpdateRequest;
+import com.example.auctionkoi.dto.response.UserLoginResponse;
 import com.example.auctionkoi.entities.User;
 import com.example.auctionkoi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class UserService {
     }
 
     public User updateUser(Long userId, UserUpdateRequest request) {
-        User user = getUser(userId); // Lấy người dùng hiện tại
+        User user = getUser(userId);
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
@@ -49,24 +50,24 @@ public class UserService {
     }
 
     public void deleteUser(Long userId) {
-        User user = getUser(userId); // Kiểm tra người dùng có tồn tại
+        User user = getUser(userId);
         userRepository.delete(user);
     }
 
-    public String loginUser(UserLoginRequest request) {
+    public User loginUser(UserLoginRequest request) {
         Optional<User> optionalUser = userRepository.findByUsername(request.getUsername());
 
         if (optionalUser.isEmpty()) {
-            return "User not found";
+            throw new RuntimeException("User not found");
         }
 
         User user = optionalUser.get();
 
         if (!user.getPassword().equals(request.getPassword())) {
-            return "Invalid password";
+            throw new RuntimeException("Invalid password");
         }
 
-        return user.getUsername(); // hoặc một thông tin hợp lệ về user
+        return user;
     }
 
 }
