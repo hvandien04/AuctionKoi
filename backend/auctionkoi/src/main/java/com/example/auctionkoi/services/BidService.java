@@ -14,7 +14,6 @@ public class BidService {
     private BidRepository bidRepository;
 
     public Bid createBid(Bid bid) {
-        // Kiểm tra và xử lý nếu cần thiết trước khi lưu vào DB
         return bidRepository.save(bid);
     }
 
@@ -25,6 +24,10 @@ public class BidService {
     public Bid getBid(Long bidId) {
         return bidRepository.findById(bidId)
                 .orElseThrow(() -> new RuntimeException("Bid not found"));
+    }
+
+    public List<Bid> getBidsByKoiId(Long koiId) {
+        return bidRepository.findAllByKoi_KoiId(koiId); // Gọi phương thức trong repository
     }
 
     public void deleteBid(Long bidId) {

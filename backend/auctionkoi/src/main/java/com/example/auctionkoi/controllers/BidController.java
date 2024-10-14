@@ -34,4 +34,9 @@ public class BidController {
         bidService.deleteBid(bidId);
         return "Bid deleted successfully";
     }
+
+    @GetMapping("/koi/{koiId}")
+    public List<Bid> getBidsByKoiId(@PathVariable Long koiId) {
+        return bidService.getBidsByKoiId(koiId);
+    }
 }

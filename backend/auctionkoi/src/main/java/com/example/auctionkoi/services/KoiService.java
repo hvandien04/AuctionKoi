@@ -14,7 +14,7 @@ public class KoiService {
     private KoiRepository koiRepository;
 
     public Koi createKoi(Koi koi) {
-        // Kiểm tra và xử lý nếu cần thiết trước khi lưu vào DB
+
         return koiRepository.save(koi);
     }
 

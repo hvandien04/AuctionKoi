@@ -1,6 +1,5 @@
 // src/components/Register.js
 import React, { useState } from 'react';
-import { registerUser } from '../api';
 import '../css/register.css';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -11,6 +10,7 @@ const Register = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
+    const [phoneNumber,setPhoneNumber] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -23,10 +23,10 @@ const Register = () => {
             return;
         }
         
-        const userData = { username, password, firstName, lastName, email };
+        const userData = { username, password, firstName, lastName, email, phoneNumber};
         console.log('Gửi dữ liệu đăng ký:', userData);
     
-        fetch('http://localhost:8080/auction/users/register', {  // Cập nhật đường dẫn
+        fetch('http://localhost:8080/auction/users/register', {  
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -49,6 +49,8 @@ const Register = () => {
             setError('Lỗi trong quá trình tạo tài khoản: ' + error.message);
         });
     };
+
+    
 
     return (
         <div id="main">
@@ -107,6 +109,19 @@ const Register = () => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="phone">Phone Number</label>
+                            <input
+                                pattern="[0-9]*"
+                                placeholder="Phone"
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                required
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
                             />
                         </div>
                         <div className="form-group">
