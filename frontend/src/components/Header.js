@@ -14,7 +14,7 @@ const Header = () => {
     const handleLogout = () => {
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('user');
-        setUser(null); // Cập nhật user trong context
+        setUser(null); 
         navigate('/'); 
     };
 

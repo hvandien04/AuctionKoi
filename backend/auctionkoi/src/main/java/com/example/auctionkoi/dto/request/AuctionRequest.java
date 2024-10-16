@@ -1,9 +1,9 @@
-package com.example.auctionkoi.dto;
+package com.example.auctionkoi.dto.request;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class AuctionDTO {
+public class AuctionRequest {
     private Long bidId;
     private int amount;
     private double currentPrice;

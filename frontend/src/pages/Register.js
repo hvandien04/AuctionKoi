@@ -1,5 +1,6 @@
 // src/components/Register.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/register.css';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -12,6 +13,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [phoneNumber,setPhoneNumber] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const navigate = useNavigate();
     const [error, setError] = useState('');
 
     const handleRegister = (event) => {
@@ -42,7 +44,7 @@ const Register = () => {
         .then(data => {
             console.log('Tạo tài khoản thành công:', data);
             alert('Bạn đã tạo tài khoản thành công!');
-            // Chuyển hướng hoặc thực hiện hành động khác sau khi tạo tài khoản thành công
+            navigate('/login'); 
         })
         .catch(error => {
             console.error('Lỗi:', error);

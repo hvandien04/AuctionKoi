@@ -29,7 +29,7 @@ public class UserService {
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setEmail(request.getEmail());
-        user.setWallet(0);
+        user.setWallet(10000);
         return userRepository.save(user);
     }
 
@@ -56,6 +56,10 @@ public class UserService {
         }
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
             user.setPhoneNumber(request.getPhoneNumber());
+        }
+        // Kiểm tra và cập nhật wallet
+        if (request.getWallet() != null) {
+            user.setWallet(request.getWallet());
         }
 
         return userRepository.save(user);

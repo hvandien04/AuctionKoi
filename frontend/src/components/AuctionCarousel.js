@@ -14,8 +14,7 @@ const AuctionCarousel = ({ koiList, timeLeft }) => {
         slidesToScroll: 5,
     };
 
-    // Lọc các mục có amount > 10
-    const auctionItems = koiList.filter(item => item.amount > 10); // Giả sử amount là thuộc tính trong item
+    const auctionItems = koiList.filter(item => item.amount > 10);
 
     return (
         <div className="auction-carousel">
@@ -43,9 +42,8 @@ const AuctionCarousel = ({ koiList, timeLeft }) => {
     );
 };
 
-// Hàm formatTime được sử dụng để định dạng thời gian còn lại
 const formatTime = (timeInMillis) => {
-    if (timeInMillis <= 0) return "Đã kết thúc"; // Nếu thời gian âm
+    if (timeInMillis <= 0) return "Đã kết thúc";
     const hours = Math.floor((timeInMillis % (1000 * 3600 * 24)) / (1000 * 3600));
     const minutes = Math.floor((timeInMillis % (1000 * 3600)) / (1000 * 60));
     const seconds = Math.floor((timeInMillis % (1000 * 60)) / 1000);

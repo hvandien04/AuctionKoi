@@ -14,7 +14,7 @@ public class User {
     private String lastName;
     private String phoneNumber;
     private String email;
-    private int wallet;
+    private Integer wallet;
 
     // Getters and Setters
 

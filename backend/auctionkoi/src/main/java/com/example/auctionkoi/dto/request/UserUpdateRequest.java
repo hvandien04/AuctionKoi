@@ -6,10 +6,20 @@ public class UserUpdateRequest {
     private String phoneNumber;
     private String lastName;
     private String email;
+    private Integer wallet;
+
 
 
     // Getters and Setters
 
+
+    public Integer getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Integer wallet) {
+        this.wallet = wallet;
+    }
 
     public String getPhoneNumber() {
         return phoneNumber;

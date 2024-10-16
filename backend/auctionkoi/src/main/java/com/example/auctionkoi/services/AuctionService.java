@@ -1,6 +1,6 @@
 package com.example.auctionkoi.services;
 
-import com.example.auctionkoi.dto.AuctionDTO;
+import com.example.auctionkoi.dto.request.AuctionRequest;
 import com.example.auctionkoi.entities.Bid;
 import com.example.auctionkoi.entities.Koi;
 import com.example.auctionkoi.entities.Breeder;
@@ -28,8 +28,8 @@ public class AuctionService {
     @Autowired
     private BreederRepository breederRepository;
 
-    public List<AuctionDTO> getAllAuctions() {
-        List<AuctionDTO> auctionDTOs = new ArrayList<>();
+    public List<AuctionRequest> getAllAuctions() {
+        List<AuctionRequest> auctionRequests = new ArrayList<>();
         List<Bid> bids = bidRepository.findAll();
 
         for (Bid bid : bids) {
@@ -37,7 +37,7 @@ public class AuctionService {
             Breeder breeder = breederRepository.findById(koi.getBreederId()).orElse(null);
 
             if (koi != null && breeder != null) {
-                AuctionDTO dto = new AuctionDTO();
+                AuctionRequest dto = new AuctionRequest();
                 dto.setBidId(bid.getBidId());
                 dto.setAmount(bid.getAmount());
                 dto.setCurrentPrice(bid.getCurrentPrice());
@@ -53,15 +53,15 @@ public class AuctionService {
                 dto.setBreederId(breeder.getBreederId());
                 dto.setBreederName(breeder.getBreederName());
                 dto.setBreederDescription(breeder.getBreederDescription());
-                auctionDTOs.add(dto);
+                auctionRequests.add(dto);
             }
         }
 
-        return auctionDTOs;
+        return auctionRequests;
     }
 
-    public List<AuctionDTO> getAuctionsByKoiId(Long koiId) {
-        List<AuctionDTO> auctionDTOs = new ArrayList<>();
+    public List<AuctionRequest> getAuctionsByKoiId(Long koiId) {
+        List<AuctionRequest> auctionRequests = new ArrayList<>();
         List<Bid> bids = bidRepository.findAllByKoi_KoiId(koiId);
 
         for (Bid bid : bids) {
@@ -69,7 +69,7 @@ public class AuctionService {
             Breeder breeder = breederRepository.findById(koi.getBreederId()).orElse(null);
 
             if (koi != null && breeder != null) {
-                AuctionDTO dto = new AuctionDTO();
+                AuctionRequest dto = new AuctionRequest();
                 dto.setBidId(bid.getBidId());
                 dto.setAmount(bid.getAmount());
                 dto.setCurrentPrice(bid.getCurrentPrice());
@@ -85,10 +85,10 @@ public class AuctionService {
                 dto.setBreederId(breeder.getBreederId());
                 dto.setBreederName(breeder.getBreederName());
                 dto.setBreederDescription(breeder.getBreederDescription());
-                auctionDTOs.add(dto);
+                auctionRequests.add(dto);
             }
         }
 
-        return auctionDTOs;
+        return auctionRequests;
     }
 }

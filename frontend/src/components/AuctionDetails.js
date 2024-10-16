@@ -3,14 +3,18 @@ import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../css/auction-details.css';
+import { useUser } from '../UserContext/UserContext';
 import axios from 'axios';
 
 const AuctionDetails = () => {
-    const { id } = useParams(); // Lấy koiId từ URL
+    const { id } = useParams(); 
     const [koiDetails, setKoiDetails] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [timeRemaining, setTimeRemaining] = useState('');
     const [isAuctionEnded, setIsAuctionEnded] = useState(false);
+    const [bidPrice, setBidPrice] = useState('');
+    const { user, setUser } = useUser();
+    const [temporaryBid, setTemporaryBid] = useState(null);
 
     useEffect(() => {
         const fetchKoiDetails = async () => {
@@ -21,7 +25,6 @@ const AuctionDetails = () => {
                 const koiData = response.data[0];
                 setKoiDetails(koiData);
 
-                // Tính toán thời gian còn lại ban đầu
                 calculateTimeRemaining(koiData.auctionEndTime);
             } catch (error) {
                 console.error('Lỗi khi lấy chi tiết cá koi:', error);
@@ -33,7 +36,6 @@ const AuctionDetails = () => {
     }, [id]);
 
     useEffect(() => {
-        // Chỉ chạy nếu có thời gian kết thúc
         let timer;
         if (koiDetails && koiDetails.auctionEndTime) {
             timer = setInterval(() => {
@@ -41,24 +43,108 @@ const AuctionDetails = () => {
             }, 1000);
         }
 
-        return () => clearInterval(timer); // Dọn dẹp timer khi component unmount
+        return () => clearInterval(timer); 
     }, [koiDetails]);
 
     const calculateTimeRemaining = (auctionEndTime) => {
         const endTime = new Date(auctionEndTime);
-        const remainingTime = endTime - Date.now(); // Thời gian còn lại tính bằng milliseconds
-
+        const remainingTime = endTime - Date.now();
+    
         if (remainingTime > 0) {
             const hours = Math.floor((remainingTime % (1000 * 3600 * 24)) / (1000 * 3600));
             const minutes = Math.floor((remainingTime % (1000 * 3600)) / (1000 * 60));
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
-            setIsAuctionEnded(false); // Phiên đấu giá vẫn tiếp tục
+            setIsAuctionEnded(false);
         } else {
-            setTimeRemaining("Phiên đấu giá đã kết thúc"); // Hiển thị thông báo kết thúc
-            setIsAuctionEnded(true); // Đánh dấu rằng phiên đấu giá đã kết thúc
+            setTimeRemaining("Phiên đấu giá đã kết thúc");
+            setIsAuctionEnded(true);
+            
+            if (temporaryBid) {
+                updateWallet(user.id, temporaryBid);
+                setTemporaryBid(null); 
+            }
         }
     };
+
+    const handlePlaceBid = async () => {
+        if (!user) {
+            alert('Bạn cần đăng nhập để thực hiện đấu giá.');
+            return;
+        }
+
+        const bidAmount = parseFloat(bidPrice);
+        const startingPrice = parseFloat(koiDetails.startingPrice);
+
+        if (bidAmount <= startingPrice) {
+            alert('Giá đấu phải cao hơn giá khởi điểm.');
+            return;
+        }
+
+        if (bidAmount > user.wallet) {
+            alert('Giá đấu không được vượt quá số tiền trong ví.');
+            return;
+        }
+
+        if (isAuctionEnded) {
+            alert('Phiên đấu giá đã kết thúc, không thể đặt giá đấu.');
+            return;
+        }
+
+        try {
+            const bidResponse = await axios.put(`http://localhost:8080/auction/bids/${koiDetails.bidId}`, {
+                amount: koiDetails.amount + 1,
+                currentPrice: bidAmount,
+                koiId: koiDetails.koiId,
+                userId: user.id,
+                auctionStartTime: koiDetails.auctionStartTime
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            setTemporaryBid(bidAmount);
+
+            setKoiDetails((prevDetails) => ({
+                ...prevDetails,
+                currentPrice: bidAmount,
+                amount: prevDetails.amount + 1
+            }));
+            setBidPrice('');
+            alert(`Đặt giá đấu thành công`);
+
+        } catch (error) {
+            console.error('Lỗi khi đặt giá đấu:', error);
+            if (error.response) {
+                alert(`Đặt giá đấu không thành công: ${error.response.data}`);
+            } else {
+                alert('Đặt giá đấu không thành công.');
+            }
+        }
+    };
+
+    
+    const updateWallet = async (userId, bidAmount) => {
+        const newWalletBalance = user.wallet - bidAmount; 
+    
+        try {
+            await axios.put(`http://localhost:8080/auction/users/update/${userId}`, {
+                wallet: newWalletBalance 
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            setUser({ ...user, wallet: newWalletBalance });
+            localStorage.setItem('user', JSON.stringify({ ...user, wallet: newWalletBalance }));
+        } catch (error) {
+            console.error('Lỗi khi cập nhật wallet:', error);
+            alert('Không thể cập nhật số dư trong ví.');
+        }
+    };
+    
 
     if (errorMessage) {
         return <p>{errorMessage}</p>;
@@ -140,16 +226,29 @@ const AuctionDetails = () => {
                                         <p>{timeRemaining}</p>
                                     </div>
                                     <div className="Input-price-frame">
-                                        <input className="Input-price" type="number" placeholder={"Mời nhập giá"} disabled={isAuctionEnded} />
-                                        <a href="#" className="btn btn-primary btn-bid" disabled={isAuctionEnded}>Place Bid</a>
+                                        <input
+                                            className="Input-price"
+                                            type="number"
+                                            placeholder={"Mời nhập giá"}
+                                            value={bidPrice}
+                                            onChange={(e) => setBidPrice(e.target.value)}
+                                            disabled={isAuctionEnded}
+                                        />
+                                        <button
+                                            className="btn btn-primary btn-bid"
+                                            onClick={handlePlaceBid}
+                                            disabled={isAuctionEnded}
+                                        >
+                                            Place Bid
+                                        </button>
                                     </div>
                                 </section>
                             </div>
                         </div>
                     </div>
                 </div>
-                <Footer />
             </div>
+            <Footer />
         </div>
     );
 };

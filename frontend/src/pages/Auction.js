@@ -9,7 +9,7 @@ import '../css/auction.css';
 const Auction = () => {
     const [koiList, setKoiList] = useState([]);
     const [errorMessage, setErrorMessage] = useState([]);
-    const [timeLeft, setTimeLeft] = useState({}); // Thời gian còn lại cho từng item
+    const [timeLeft, setTimeLeft] = useState({}); 
 
     useEffect(() => {
         const fetchKoi = async () => {
@@ -19,7 +19,6 @@ const Auction = () => {
                 console.log("Koi List fetched successfully:", response.data);
                 setKoiList(response.data);
                 
-                // Tính toán thời gian còn lại cho mỗi item
                 const remainingTime = {};
                 response.data.forEach(item => {
                     const endTime = new Date(item.auctionEndTime).getTime();
@@ -39,17 +38,17 @@ const Auction = () => {
             setTimeLeft(prev => {
                 const updatedTimeLeft = { ...prev };
                 Object.keys(updatedTimeLeft).forEach(koiId => {
-                    updatedTimeLeft[koiId] -= 1000; // Giảm thời gian còn lại 1 giây
+                    updatedTimeLeft[koiId] -= 1000;
                 });
                 return updatedTimeLeft;
             });
         }, 1000);
 
-        return () => clearInterval(timer); // Dọn dẹp timer khi component unmount
+        return () => clearInterval(timer);
     }, []);
 
     const formatTime = (timeInMillis) => {
-        if (timeInMillis <= 0) return "Đã kết thúc"; // Nếu thời gian âm
+        if (timeInMillis <= 0) return "Đã kết thúc";
         const hours = Math.floor((timeInMillis % (1000 * 3600 * 24)) / (1000 * 3600));
         const minutes = Math.floor((timeInMillis % (1000 * 3600)) / (1000 * 60));
         const seconds = Math.floor((timeInMillis % (1000 * 60)) / 1000);
